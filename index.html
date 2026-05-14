@@ -274,7 +274,7 @@
             
             window[callbackName] = function(response) {
                 if (response.result === "success" || (response.msg && response.msg.includes("already subscribed"))) {
-                    window.location.href = "https://www.workshopterapias.com.br/obrigado";
+                    window.location.href = "https://f42a6df5.workshop-terapias.pages.dev/obrigado";
                 } else {
                     alert("Aviso: " + response.msg);
                     submitBtn.value = originalBtnValue;
