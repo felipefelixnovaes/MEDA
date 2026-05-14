@@ -210,7 +210,7 @@
             <h2 style="margin-bottom: 40px;">Formulário de Pré-Inscrição</h2>
             
             <div id="mc_embed_signup">
-                <form action="https://escolameda.us8.list-manage.com/subscribe/post?u=f16c734be04afaef2db8ce550&amp;id=b48fc370c9&amp;f_id=00b87de1f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank">
+                <form id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate">
                     <div class="mc-field-group">
                         <label for="mce-FNAME">Nome completo</label>
                         <input type="text" name="FNAME" class="required text" id="mce-FNAME" required placeholder="Digite seu nome">
@@ -246,5 +246,49 @@
         </div>
     </footer>
 
+    <script>
+        document.getElementById('mc-embedded-subscribe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const submitBtn = form.querySelector('input[type="submit"]');
+            const originalBtnValue = submitBtn.value;
+            
+            submitBtn.value = "ENVIANDO...";
+            submitBtn.disabled = true;
+
+            // Coleta os dados do formulário
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            // Mailchimp requer os campos específicos. O endpoint de JSONP é diferente do POST normal.
+            // URL original: https://escolameda.us8.list-manage.com/subscribe/post?u=f16c734be04afaef2db8ce550&id=b48fc370c9&f_id=00b87de1f0
+            const url = "https://escolameda.us8.list-manage.com/subscribe/post-json?u=f16c734be04afaef2db8ce550&id=b48fc370c9&f_id=00b87de1f0&c=?";
+
+            // Prepara os dados para o JSONP
+            const email = form.querySelector('#mce-EMAIL').value;
+            const fname = form.querySelector('#mce-FNAME').value;
+            const whats = form.querySelector('#mce-WHATS').value;
+            
+            const script = document.createElement('script');
+            const callbackName = 'mailchimpCallback';
+            
+            window[callbackName] = function(response) {
+                if (response.result === "success" || response.msg.includes("already subscribed")) {
+                    // Redireciona para a página de obrigado
+                    window.location.href = "https://www.workshopterapias.com.br/obrigado";
+                } else {
+                    alert("Erro ao enviar: " + response.msg);
+                    submitBtn.value = originalBtnValue;
+                    submitBtn.disabled = false;
+                }
+                document.body.removeChild(script);
+                delete window[callbackName];
+            };
+
+            script.src = `${url}&EMAIL=${encodeURIComponent(email)}&FNAME=${encodeURIComponent(fname)}&WHATS=${encodeURIComponent(whats)}&subscribe=Subscribe`;
+            document.body.appendChild(script);
+        });
+    </script>
 </body>
 </html>
