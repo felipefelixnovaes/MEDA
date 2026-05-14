@@ -261,24 +261,22 @@
             const formData = new FormData(form);
             const params = new URLSearchParams();
             
-            // Mailchimp requer os campos específicos. O endpoint de JSONP é diferente do POST normal.
-            // URL original: https://escolameda.us8.list-manage.com/subscribe/post?u=f16c734be04afaef2db8ce550&id=b48fc370c9&f_id=00b87de1f0
-            const url = "https://escolameda.us8.list-manage.com/subscribe/post-json?u=f16c734be04afaef2db8ce550&id=b48fc370c9&f_id=00b87de1f0&c=?";
+            // URL do Mailchimp para JSONP
+            const url = "https://escolameda.us8.list-manage.com/subscribe/post-json?u=f16c734be04afaef2db8ce550&id=b48fc370c9&f_id=00b87de1f0";
 
-            // Prepara os dados para o JSONP
+            // Prepara os dados
             const email = form.querySelector('#mce-EMAIL').value;
             const fname = form.querySelector('#mce-FNAME').value;
             const whats = form.querySelector('#mce-WHATS').value;
             
             const script = document.createElement('script');
-            const callbackName = 'mailchimpCallback';
+            const callbackName = 'mailchimpCallback_' + Math.round(100000 * Math.random());
             
             window[callbackName] = function(response) {
-                if (response.result === "success" || response.msg.includes("already subscribed")) {
-                    // Redireciona para a página de obrigado
+                if (response.result === "success" || (response.msg && response.msg.includes("already subscribed"))) {
                     window.location.href = "https://www.workshopterapias.com.br/obrigado";
                 } else {
-                    alert("Erro ao enviar: " + response.msg);
+                    alert("Aviso: " + response.msg);
                     submitBtn.value = originalBtnValue;
                     submitBtn.disabled = false;
                 }
@@ -286,7 +284,8 @@
                 delete window[callbackName];
             };
 
-            script.src = `${url}&EMAIL=${encodeURIComponent(email)}&FNAME=${encodeURIComponent(fname)}&WHATS=${encodeURIComponent(whats)}&subscribe=Subscribe`;
+            // Adiciona o callback à URL
+            script.src = `${url}&EMAIL=${encodeURIComponent(email)}&FNAME=${encodeURIComponent(fname)}&WHATS=${encodeURIComponent(whats)}&c=${callbackName}`;
             document.body.appendChild(script);
         });
     </script>
